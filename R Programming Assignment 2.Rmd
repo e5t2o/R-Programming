@@ -22,6 +22,7 @@ The first function, makeVector creates a special "vector", which is really a lis
 3. set the value of the mean
 4. get the value of the mean
 
+###Example Part 1
 ```{r}
 makeVector <- function(x = numeric()) {
         m <- NULL
@@ -38,8 +39,22 @@ makeVector <- function(x = numeric()) {
 }
 ```
 
+####Testing part 1 of the example function
+```{r}
+puns= c(215,3251,235,6463,754,475)
+nuns= c(23894, 3284, 39847, 93847)
+plums= c(182, 3958, 1398, 3406) 
+nums=c(puns, nuns, plums)
+
+makeVector(plums)
+makeVector(nums)
+VecNum= makeVector(plums)
+VecNums= makeVector(nums)
+```
+
 The following function calculates the mean of the special "vector" created with the above function. However, it first checks to see if the mean has already been calculated. If so, it gets the mean from the cache and skips the computation. Otherwise, it calculates the mean of the data and sets the value of the mean in the cache via the setmean function.
 
+###Example Part 2
 ```{r}
 cachemean <- function(x, ...) {
         m <- x$getmean()
@@ -53,6 +68,14 @@ cachemean <- function(x, ...) {
         m
 }
 ```
+
+####Testing part 2 of the example function
+```{r}
+cachemean(VecNum)
+cachemean(VecNums)
+```
+
+
 
 ###Assignment: Caching the Inverse of a Matrix
 Matrix inversion is usually a costly computation and there may be some benefit to caching the inverse of a matrix rather than compute it repeatedly (there are also alternatives to matrix inversion that we will not discuss here). Your assignment is to write a pair of functions that cache the inverse of a matrix.
@@ -127,3 +150,42 @@ cacheSolve <- function(x, ...) {
         ## Return a matrix that is the inverse of 'x'
 }
 ```
+
+```{r}
+library(MASS)
+m=matrix(c(1,2,3,4),2,2)
+ginv(m)
+
+
+makeCacheMatrix <- function(x = matrix()) {
+ gin <- NULL
+        set <- function(y) {
+                x <<- y
+                gin <<- NULL
+        }
+        get <- function() x
+        setgin <- function(ginv) gin <<- ginv
+        getgin <- function() gin
+        list(set = set, get = get,
+             setgin = setgin,
+             getgin = getgin)
+ }
+
+move=makeCacheMatrix(m)
+
+cacheSolve <- function(x, ...) {
+        makeCacheMatrix(gin)
+        gin <- x$getgin()
+        if(!is.null(gin)) {
+                message("getting cached data")
+                return(gin)
+        }
+        data <- x$get()
+        gin <- gin(data, ...)
+        x$setmean(gin)
+        gin
+}
+
+cacheSolve(move)
+```
+
